@@ -13,6 +13,8 @@ const (
 	sqlMutexMonitoringMatch = "wait/synch/mutex/%"
 	sqlPrefix               = "stage/sql"
 	sqlStageMonitoringMatch = "stage/sql/%"
+	innodbSxlockPrefix      = "wait/synch/sxlock/innodb"
+	sqlInnodbSxlockMonMatch = "wait/synch/sxlock/innodb/%"
 )
 
 // List of expected errors to an UPDATE statement.  Checks are only
@@ -59,6 +61,7 @@ func NewSetupInstruments(db *sql.DB) *SetupInstruments {
 func (si *SetupInstruments) EnableMonitoring() {
 	si.EnableMutexMonitoring()
 	si.EnableStageMonitoring()
+	si.EnableInnodbSxlockMonitoring()
 }
 
 // EnableStageMonitoring change settings to monitor stage/sql/%
@@ -85,6 +88,19 @@ func (si *SetupInstruments) EnableMutexMonitoring() {
 	)
 
 	log.Println("EnableMutexMonitoring finishes")
+}
+
+// EnableInnodbSxlockMonitoring changes settings to monitor wait/synch/sxlock/innodb/%
+func (si *SetupInstruments) EnableInnodbSxlockMonitoring() {
+	log.Println("EnableInnodbSxlockMonitoring")
+
+	si.Configure(
+		setupInstrumentsFilter(sqlInnodbSxlockMonMatch),
+		collectingSetupInstrumentsMessage(innodbSxlockPrefix),
+		updatingSetupInstrumentsMessage(innodbSxlockPrefix),
+	)
+
+	log.Println("EnableInnodbSxlockMonitoring finishes")
 }
 
 // expectedError returns true if the error is in the expected list of errors
